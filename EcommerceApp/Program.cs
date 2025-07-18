@@ -31,6 +31,13 @@ options.UseSqlServer(builder.Configuration.GetConnectionString("constr")));
 builder.Services.AddScoped<IAuthService, AuthService>(); 
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JWT"));
 builder.Services.AddScoped<OutfitSuggestionService>();
+builder.Configuration.AddEnvironmentVariables();
+var connectionString = builder.Configuration["ConnectionStrings_constr"];
+var jwtKey = builder.Configuration["JWT_Key"];
+var email = builder.Configuration["EmailSettings_Email"];
+var emailHost = builder.Configuration["EmailSettings_Host"];
+var emailPort = builder.Configuration["EmailSettings_Port"];
+var emailPassword = builder.Configuration["EmailSettings_Password"];
 
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false).AddRoles<IdentityRole>().AddEntityFrameworkStores<AppDbContext>();
 builder.Services.AddTransient<IEmailSender, EmailSender>(); 
