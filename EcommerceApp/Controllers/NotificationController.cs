@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -15,7 +16,8 @@ namespace EcommerceApp.Controllers
         {
             _context = context;
         }
-      /*  [HttpGet("UnreadCount")]
+        [Authorize]
+        [HttpGet("UnreadCount")]
         public async Task<IActionResult> GetUnreadCount()
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -25,9 +27,12 @@ namespace EcommerceApp.Controllers
 
             return Ok(count);
         }
+        [Authorize]
         [HttpPut("markasread/{NotificationId}")]
         public async Task<IActionResult> UpdateNotification(int NotificationId)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!int.TryParse(userId, out int Id)) return Unauthorized("Invalid user");
             var noty = await _context.Notifications.FindAsync(NotificationId);
             if (noty == null)
             {
@@ -37,6 +42,6 @@ namespace EcommerceApp.Controllers
             await _context.SaveChangesAsync();
             return Ok(new { message = "Notification marked as read." });
 
-        }*/
+        }
     }
 }

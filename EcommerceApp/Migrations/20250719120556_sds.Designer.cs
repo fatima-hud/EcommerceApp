@@ -4,6 +4,7 @@ using EcommerceApp;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EcommerceApp.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250719120556_sds")]
+    partial class sds
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -103,10 +106,6 @@ namespace EcommerceApp.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("AllColor")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Color")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -127,53 +126,6 @@ namespace EcommerceApp.Migrations
                     b.HasIndex("ProductId");
 
                     b.ToTable("ClothingItems");
-                });
-
-            modelBuilder.Entity("EcommerceApp.Entities.ColorEntity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Hex")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Rgb")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ColorEntities");
-                });
-
-            modelBuilder.Entity("EcommerceApp.Entities.ColorFamily", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ColorEntityId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ColorEntityId");
-
-                    b.ToTable("ColorFamilies");
                 });
 
             modelBuilder.Entity("EcommerceApp.Entities.Comment", b =>
@@ -204,6 +156,35 @@ namespace EcommerceApp.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Comments");
+                });
+
+            modelBuilder.Entity("EcommerceApp.Entities.CompartibleColor", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ColorCompartible")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ColorCompartibleHex")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ColorHex")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CompartibleColors");
                 });
 
             modelBuilder.Entity("EcommerceApp.Entities.DiscountSetting", b =>
@@ -262,9 +243,8 @@ namespace EcommerceApp.Migrations
                     b.Property<DateTime>("CreateAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("ShippingAddress")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("ShippingCompanyId")
+                        .HasColumnType("int");
 
                     b.Property<decimal>("TotalPrice")
                         .HasColumnType("decimal(10,2)");
@@ -273,6 +253,8 @@ namespace EcommerceApp.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ShippingCompanyId");
 
                     b.HasIndex("UserId");
 
@@ -340,6 +322,35 @@ namespace EcommerceApp.Migrations
                     b.ToTable("OtpCodes");
                 });
 
+            modelBuilder.Entity("EcommerceApp.Entities.Payment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("PaymentDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PaymentMethod")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId")
+                        .IsUnique();
+
+                    b.ToTable("Payments");
+                });
+
             modelBuilder.Entity("EcommerceApp.Entities.Product", b =>
                 {
                     b.Property<int>("Id")
@@ -383,7 +394,7 @@ namespace EcommerceApp.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("StyleCloth")
+                    b.Property<string>("Style")
                         .IsRequired()
                         .HasColumnType("nvarchar(100)");
 
@@ -425,7 +436,7 @@ namespace EcommerceApp.Migrations
                     b.ToTable("SearchHistories");
                 });
 
-            modelBuilder.Entity("EcommerceApp.Entities.SearchStatic", b =>
+            modelBuilder.Entity("EcommerceApp.Entities.ShippingCompany", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -433,16 +444,17 @@ namespace EcommerceApp.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Count")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Term")
+                    b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(20)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("SearchStatics");
+                    b.ToTable("ShippingCompanies");
                 });
 
             modelBuilder.Entity("EcommerceApp.Entities.User", b =>
@@ -477,9 +489,6 @@ namespace EcommerceApp.Migrations
 
                     b.Property<DateTime?>("RefreshTokenExpiryTime")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("UserImage")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserName")
                         .IsRequired()
@@ -585,17 +594,6 @@ namespace EcommerceApp.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("EcommerceApp.Entities.ColorFamily", b =>
-                {
-                    b.HasOne("EcommerceApp.Entities.ColorEntity", "Color")
-                        .WithMany("Families")
-                        .HasForeignKey("ColorEntityId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Color");
-                });
-
             modelBuilder.Entity("EcommerceApp.Entities.Comment", b =>
                 {
                     b.HasOne("EcommerceApp.Entities.Product", "Product")
@@ -636,11 +634,19 @@ namespace EcommerceApp.Migrations
 
             modelBuilder.Entity("EcommerceApp.Entities.Order", b =>
                 {
+                    b.HasOne("EcommerceApp.Entities.ShippingCompany", "ShippingCompany")
+                        .WithMany("Orders")
+                        .HasForeignKey("ShippingCompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("EcommerceApp.Entities.User", "User")
                         .WithMany("Orders")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("ShippingCompany");
 
                     b.Navigation("User");
                 });
@@ -662,6 +668,17 @@ namespace EcommerceApp.Migrations
                     b.Navigation("Order");
 
                     b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("EcommerceApp.Entities.Payment", b =>
+                {
+                    b.HasOne("EcommerceApp.Entities.Order", "Order")
+                        .WithOne("Payment")
+                        .HasForeignKey("EcommerceApp.Entities.Payment", "OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("EcommerceApp.Entities.Product", b =>
@@ -714,11 +731,6 @@ namespace EcommerceApp.Migrations
                     b.Navigation("Products");
                 });
 
-            modelBuilder.Entity("EcommerceApp.Entities.ColorEntity", b =>
-                {
-                    b.Navigation("Families");
-                });
-
             modelBuilder.Entity("EcommerceApp.Entities.DiscountSetting", b =>
                 {
                     b.Navigation("Products");
@@ -727,6 +739,9 @@ namespace EcommerceApp.Migrations
             modelBuilder.Entity("EcommerceApp.Entities.Order", b =>
                 {
                     b.Navigation("OrderItems");
+
+                    b.Navigation("Payment")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("EcommerceApp.Entities.Product", b =>
@@ -738,9 +753,15 @@ namespace EcommerceApp.Migrations
                     b.Navigation("OrderItems");
                 });
 
+            modelBuilder.Entity("EcommerceApp.Entities.ShippingCompany", b =>
+                {
+                    b.Navigation("Orders");
+                });
+
             modelBuilder.Entity("EcommerceApp.Entities.User", b =>
                 {
-                    b.Navigation("Cart");
+                    b.Navigation("Cart")
+                        .IsRequired();
 
                     b.Navigation("Favorites");
 

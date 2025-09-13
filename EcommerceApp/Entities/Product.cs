@@ -22,6 +22,8 @@ namespace EcommerceApp.Entities
         public string Name { get; set; }    
         public string ImageUrl { get; set; }
         public Category Category { get; set; } = null!;
+        [Column(TypeName = "nvarchar(100)")]
+        public string StyleCloth { get; set; }
 
         public DiscountSetting? DiscountSetting { get; set; }
         public ICollection<Favorite> Favorites { get; set; } = new List<Favorite>();

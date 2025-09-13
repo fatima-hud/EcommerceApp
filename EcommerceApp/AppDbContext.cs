@@ -22,23 +22,23 @@ namespace EcommerceApp
         public DbSet<Notification> Notifications { get; set; }=null!;
      public DbSet<ClothingItem>ClothingItems { get; set; } = null!;
         public DbSet<CartItem> CartItems { get; set; } = null!;
-        public DbSet<ShippingCompany> ShippingCompanies { get; set; } = null!;
+       
         public DbSet<Order> Orders { get; set; } = null!;
         public DbSet<OrderItem> OrderItems { get; set; } = null!;
         public DbSet<Comment> Comments { get; set; } = null!;
         public DbSet<Favorite> Favorites { get; set; } = null!;
         public DbSet<SearchHistory> SearchHistories { get; set; } = null!;
-        public DbSet<Payment> Payments { get; set; } = null!;
-        public DbSet<CompartibleColor>CompartibleColors { get; set; } = null!;
+       
 
         public DbSet<OtpCode> OtpCodes { get; set; }
+        public DbSet<ColorEntity> ColorEntities { get; set; }
+        public DbSet<ColorFamily> ColorFamilies { get; set; }
+        public DbSet<SearchStatic>SearchStatics { get; set; } = null!;
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Order>() .HasOne(o => o.Payment) .WithOne(p => p.Order).HasForeignKey<Payment>(p => p.OrderId).OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<Order>().HasOne(e => e.ShippingCompany).WithMany(e=>e.Orders).HasForeignKey(e => e.ShippingCompanyId).OnDelete(DeleteBehavior.Restrict);
+        
 
             modelBuilder.Entity<Order>().HasOne(e => e.User).WithMany(e=>e.Orders).HasForeignKey(e=>e.UserId).OnDelete(DeleteBehavior.Restrict);
 
@@ -59,7 +59,11 @@ namespace EcommerceApp
             modelBuilder.Entity<CartItem>().HasOne(e => e.Cart).WithMany(e=>e.CartItems).HasForeignKey(e => e.CartId).OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Favorite>().HasOne(e => e.Product).WithMany(e=>e.Favorites).HasForeignKey(e => e.ProductId).OnDelete(DeleteBehavior.Restrict);
-
+            modelBuilder.Entity<ColorFamily>()
+       .HasOne(cf => cf.Color)
+       .WithMany(c => c.Families)
+       .HasForeignKey(cf => cf.ColorEntityId)
+       .OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<Favorite>().HasOne(e=>e.User).WithMany(e=>e.Favorites).HasForeignKey(e=>e.UserId).OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<Cart>().HasOne(e=>e.User).WithOne(e=>e.Cart).HasForeignKey<Cart>(e=>e.UserId).OnDelete(DeleteBehavior.Restrict);
          //   modelBuilder.Entity<ClothingItem>().HasOne(e=>e.Product).WithMany(e=>e.ClothingItems).HasForeignKey(e=>e.ProductId).OnDelete(DeleteBehavior.Restrict);

@@ -1,5 +1,6 @@
 ﻿using EcommerceApp.Entities;
 using EcommerceApp.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -17,7 +18,6 @@ private readonly AppDbContext _context;
         {
             _context = context;
         }
-       
 
 
         [HttpGet("GetCommentsForProduct/{ProductId}")]
@@ -64,41 +64,49 @@ private readonly AppDbContext _context;
 
 
 
-
-
-
-
-
-
-
-
-
-     
-
-    }
-}
-
-
-/*
- *  [HttpPut("UpdateComment/{commentId}")]
-        public async Task<IActionResult> UpdateComment(int commentId, [FromBody]string text)
-        {
-            if (string.IsNullOrWhiteSpace(text)) return BadRequest("Comment text cannot be empty");
-            var comment=await _context.Comments.FindAsync(commentId);
-            if (comment == null) return NotFound("Comment not found");
-            comment.text = text;
-            comment.CreatedDate= DateTime.Now;
-            await _context.SaveChangesAsync();
-            return Ok("Comment updated successfully");
-        }
-
- [HttpPost("add comment")]
-        public async Task<IActionResult> AddComment([FromBody]AddComment dto)
+        [Authorize]
+        [HttpDelete("{commentId}")]
+        public async Task<IActionResult> Delete( int commentId)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId) || !int.TryParse(userId, out int parsedUserId))
                 return Unauthorized("Invalid user");
-            var product =await  _context.Products.FindAsync(dto.ProductId);
+            var comment = await _context.Comments.FindAsync(commentId);
+            if (comment == null) return NotFound("not found");
+            if (comment.UserId != parsedUserId)
+                return Unauthorized("You can only Delete your own comments");
+            _context.Comments.Remove(comment);
+            await _context.SaveChangesAsync();
+            return Ok("comment is deleted successfully");
+        }
+        [Authorize]
+        [HttpPut("UpdateComment/{commentId}")]
+        public async Task<IActionResult> UpdateComment(int commentId, [FromBody] string text)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId) || !int.TryParse(userId, out int parsedUserId))
+                return Unauthorized("Invalid user");
+           
+            if (string.IsNullOrWhiteSpace(text)) return BadRequest("Comment text cannot be empty");
+            var comment = await _context.Comments.FindAsync(commentId);
+            if (comment == null) return NotFound("Comment not found");
+            if (comment.UserId != parsedUserId)
+                return Unauthorized("You can only modify your own comments");
+            comment.text = text;
+
+            
+            await _context.SaveChangesAsync();
+            return Ok("Comment updated successfully");
+        }
+        [Authorize]
+
+        [HttpPost("addcomment")]
+        public async Task<IActionResult> AddComment([FromBody] AddComment dto)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId) || !int.TryParse(userId, out int parsedUserId))
+                return Unauthorized("Invalid user");
+            var product = await _context.Products.FindAsync(dto.ProductId);
             if (product == null)
                 return NotFound("not found");
             var comment = new Comment
@@ -106,12 +114,26 @@ private readonly AppDbContext _context;
                 ProductId = dto.ProductId,
                 text = dto.Text,
                 UserId = parsedUserId,
-                CreatedDate = DateTime.Now
+                CreatedDate = DateTime.UtcNow
 
             };
             _context.Comments.Add(comment);
-           await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
             return Ok("Comment added successfully");
 
         }
-*/
+
+
+
+
+
+
+
+
+
+    }
+}
+
+
+
+
